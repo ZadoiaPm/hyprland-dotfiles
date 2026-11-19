@@ -1,0 +1,212 @@
+// -*- mode: jsonc -*-
+// Обычный Waybar: всегда видим, без автоскрытия и без скриптов.
+// Один конфиг + один style.css. Содержимое самодостаточное, include не нужен.
+{
+    "layer": "top",
+    "position": "top",
+    "height": 36,
+    "spacing": 4,
+    "margin-top": 6,
+    "margin-left": 10,
+    "margin-right": 10,
+
+    // Если нужен бар только на одном мониторе — раскомментируйте и укажите имя:
+    // "output": "HDMI-A-1",
+
+    "modules-left": [
+        "ext/workspaces",
+        "hyprland/submap",
+        "hyprland/window",
+        "hyprland/language"
+    ],
+
+    "modules-center": [
+        "custom/firefox",
+        "custom/telegram",
+        "custom/vesktop",
+        "custom/amberol",
+        "custom/steam",
+        "custom/vscode",
+        "custom/media"
+    ],
+
+    "modules-right": [
+        "custom/weather",
+        "network",
+        "cpu",
+        "custom/gpu",
+        "memory",
+        "pulseaudio",
+        "custom/uptime",
+        "clock",
+        "tray",
+        "custom/notification",
+        "custom/power"
+    ],
+
+    // Воркспейсы: ext/workspaces работает через Wayland-протокол.
+    "ext/workspaces": {
+        "format": "{name}",
+        "on-click": "activate",
+        "sort-by-id": true,
+        "all-outputs": false,
+        "ignore-hidden": false
+    },
+
+    "hyprland/submap": {
+        "format": "<span style=\"italic\">{}</span>"
+    },
+
+    "hyprland/window": {
+        "max-length": 50,
+        "separate-outputs": true
+    },
+
+    // Имя клавиатуры: hyprctl devices
+    "hyprland/language": {
+        "format": "{}",
+        "format-en": "EN",
+        "format-ru": "RU",
+        "format-uk": "UA",
+        "keyboard-name": "gsr-ui-virtual-keyboard"
+    },
+
+    // Приложения: замените команды на свои.
+    "custom/firefox": {
+        "format": "󰈹",
+        "tooltip": true,
+        "tooltip-format": "Firefox",
+        "on-click": "firefox"
+    },
+    "custom/telegram": {
+        "format": "",
+        "tooltip": true,
+        "tooltip-format": "ayugram",
+        "on-click": "ayugram-desktop"
+    },
+    "custom/vesktop": {
+        "format": "󰙯",
+        "tooltip": true,
+        "tooltip-format": "Vesktop",
+        "on-click": "vesktop"
+    },
+    "custom/amberol": {
+        "format": "󰎇",
+        "tooltip": true,
+        "tooltip-format": "Amberol",
+        "on-click": "amberol"
+    },
+    "custom/steam": {
+        "format": "󰓓",
+        "tooltip": true,
+        "tooltip-format": "Steam",
+        "on-click": "steam"
+    },
+    "custom/vscode": {
+        "format": "󰨞",
+        "tooltip": true,
+        "tooltip-format": "Code - OSS",
+        "on-click": "code"
+    },
+
+    // Музыка: трек в тексте, тултип с плеером.
+    "custom/media": {
+        "format": "{text}",
+        "return-type": "json",
+        "max-length": 45,
+        "escape": true,
+        "format-icons": {
+            "Playing": "",
+            "Paused": ""
+        },
+        "exec": "playerctl -a metadata --format '{\"text\": \"{{artist}} — {{title}}\", \"tooltip\": \"{{playerName}}: {{artist}} — {{title}}\", \"alt\": \"{{status}}\", \"class\": \"{{status}}\"}' -F 2>/dev/null",
+        "on-click": "playerctl play-pause",
+        "on-scroll-up": "playerctl next",
+        "on-scroll-down": "playerctl previous"
+    },
+
+    // Погода: можно добавить город, например wttr.in/Moscow?format=...
+    "custom/weather": {
+        "format": "{}",
+        "tooltip": false,
+        "interval": 1800,
+        "exec": "curl -sf --max-time 5 'https://wttr.in/?format=%c+%t&m' 2>/dev/null || echo '-- --'"
+    },
+
+    "network": {
+        "format-wifi": "{essid} {signalStrength}%",
+        "format-ethernet": "{ipaddr}",
+        "format-disconnected": "No network",
+        "tooltip-format": "{ifname} via {gwaddr}\nDown: {bandwidthDownBytes}  Up: {bandwidthUpBytes}",
+        "interval": 5,
+        "on-click": "nm-connection-editor"
+    },
+
+    "cpu": {
+        "format": "CPU {usage}%",
+        "interval": 2
+    },
+
+    // GPU: только для NVIDIA. Для AMD/Intel удалите модуль.
+    "custom/gpu": {
+        "format": "GPU {}%",
+        "interval": 2,
+        "exec": "nvidia-smi --query-gpu=utilization.gpu --format=csv,noheader,nounits",
+        "exec-if": "command -v nvidia-smi"
+    },
+
+    "memory": {
+        "format": "{used:.1f}G / {total:.1f}G",
+        "interval": 5,
+        "tooltip": true,
+        "tooltip-format": "RAM: {used:.2f}G used\nSwap: {swapUsed:.2f}G / {swapTotal:.2f}G"
+    },
+
+    "pulseaudio": {
+        "format": "{volume}%",
+        "format-muted": "muted",
+        "format-icons": {
+            "headphone": "",
+            "headset": "",
+            "default": ["", "", ""]
+        },
+        "on-click": "pavucontrol",
+        "on-scroll-up": "pamixer -i 2",
+        "on-scroll-down": "pamixer -d 2",
+        "scroll-step": 2
+    },
+
+    "custom/uptime": {
+        "format": "{}",
+        "tooltip": true,
+        "tooltip-format": "Время с последней загрузки",
+        "interval": 60,
+        "exec": "awk '{h=int($1/3600); m=int(($1%3600)/60); printf \"%dч %02dм\", h, m}' /proc/uptime"
+    },
+
+    "clock": {
+        "format": "{:%H:%M  %d %b}",
+        "format-alt": "{:%Y-%m-%d %H:%M:%S}",
+        "tooltip-format": "<big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt>",
+        "interval": 1
+    },
+
+    "tray": {
+        "spacing": 8,
+        "icon-size": 16
+    },
+
+    // Уведомления: нужен swaync.
+    "custom/notification": {
+        "format": "󰐥",
+        "on-click": "swaync-client -t -sw",
+        "escape": true
+    },
+
+    // Меню питания через wofi.
+    "custom/power": {
+        "format": "",
+        "tooltip": false,
+        "on-click": "bash -c '(echo shutdown; echo reboot; echo suspend; echo logout) | wofi --dmenu -p \"Power\" | xargs -I{} sh -c \"[ {} = logout ] && hyprctl dispatch exit || systemctl {}\"'"
+    }
+}
